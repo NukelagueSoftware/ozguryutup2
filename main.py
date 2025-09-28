@@ -49,16 +49,61 @@ def main_page():
 
     return render_template('index.html', video_url=video_url, error=error_message)
 
+from flask import Flask, request, render_template, redirect, url_for, send_from_directory
+import os, time, random, unicodedata
+from pytubefix import YouTube, Search
+
+username = "sokulyegeni"
+password = "dOKUZakadar"
+
+app = Flask(__name__)
+
+@app.route('/', methods=['GET', 'POST'])
+def index():
+    if request.method == 'POST':
+        entered_username = request.form['username']
+        entered_password = request.form['password']
+        if entered_username == username and entered_password == password:
+            return redirect(url_for('main_page'))
+        else:
+            return render_template('login.html', error="Yanlış kullanıcı adı veya şifre!")
+    return render_template('login.html')
+
+
+@app.route('/x3fosdkf9FdKD0fdsk9DFkdFDSKOd9EFke', methods=['GET', 'POST'])
+def main_page():
+    video_url = None
+    error_message = None
+    if request.method == 'POST':
+        try:
+            url = request.form['url']
+            youtube_video = YouTube(url, use_po_token=True)
+            video_stream = youtube_video.streams.get_highest_resolution()
+            new_filename = "Yeni_Video_Adi.mp4"
+
+            if not os.path.exists("static"):
+                os.makedirs("static")
+
+            video_stream.download("static", filename=new_filename)
+
+            with open("save.txt", "a", encoding="utf-8") as file:
+                file.write("X\n")
+
+            video_url = f'/static/{new_filename}'
+        except Exception as e:
+            error_message = f"Hata: {str(e)}"
+            print(error_message)
+
+    return render_template('index.html', video_url=video_url, error=error_message)
+
+
 @app.route('/play_video', methods=['POST'])
 def play_video():
-    import time
-    import os
-
     try:
         url = request.form['url']
         video_title = request.form.get('title', 'Video')
 
-        # 1️⃣ static klasöründeki önceki mp4 videoları sil
+        # static klasörünü temizle
         static_folder = "static"
         if os.path.exists(static_folder):
             for filename in os.listdir(static_folder):
@@ -69,22 +114,20 @@ def play_video():
                 except Exception as e:
                     print(f"Video silme hatası: {e}")
 
-        # 2️⃣ benzersiz dosya adı
-        timestamp = str(int(time.time()))
-        filename = f"video_{timestamp}.mp4"
-
-        # 3️⃣ static klasörünü oluştur (yoksa)
         if not os.path.exists(static_folder):
             os.makedirs(static_folder)
 
-        # 4️⃣ video indir
-        youtube_video = YouTube(url)
+        timestamp = str(int(time.time()))
+        filename = f"video_{timestamp}.mp4"
+
+        # YouTube video indirme, use_po_token ile
+        youtube_video = YouTube(url, use_po_token=True)
         video_stream = youtube_video.streams.get_highest_resolution()
         video_stream.download(static_folder, filename=filename)
 
         return render_template(
-            'video_player.html', 
-            video_file=filename, 
+            'video_player.html',
+            video_file=filename,
             video_title=video_title,
             original_url=url
         )
@@ -96,9 +139,6 @@ def play_video():
 @app.route('/kesfet')
 @app.route('/kesfet/<category>')
 def kesfet(category=None):
-    import random, unicodedata
-    from pytubefix import Search
-
     videos = []
     search_query = request.args.get("search", "").strip()
 
@@ -124,7 +164,7 @@ def kesfet(category=None):
         ]
         for q in queries:
             try:
-                s = Search(q)
+                s = Search(q, client='web')  # web client ile bot tespiti aşılır
                 results = list(s.results)
                 while len(results) < limit:
                     more = s.get_next_results()
@@ -139,7 +179,6 @@ def kesfet(category=None):
         return []
 
     def format_videos(search_results):
-        """Videoları dict olarak hazırla."""
         formatted = []
         for video in search_results:
             try:
@@ -158,14 +197,11 @@ def kesfet(category=None):
         return formatted
 
     try:
-        # kullanıcı araması varsa
         if search_query:
             search_results = yt_search_fix(search_query)
-        # kategori seçilmişse rastgele bir terimden çek
         elif category and category in categories:
             term = random.choice(categories[category])
             search_results = yt_search_fix(term)
-        # hiçbir şey yoksa rastgele kategori
         else:
             all_terms = [t for cat_terms in categories.values() for t in cat_terms]
             term = random.choice(all_terms)
@@ -183,6 +219,15 @@ def kesfet(category=None):
         categories=categories.keys(),
         search_query=search_query
     )
+
+
+@app.route('/static/<path:filename>')
+def download_file(filename):
+    return send_from_directory('static', filename)
+
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=8080, debug=True)
 
 
 @app.route('/static/<path:filename>')
