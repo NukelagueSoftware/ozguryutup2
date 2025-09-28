@@ -28,7 +28,7 @@ def main_page():
         try:
             url = request.form['url']
             youtube_video = YouTube(url, use_po_token=True)
-            video_stream = youtube_video.filter(progressive=True).streams.get_highest_resolution()
+            video_stream = youtube_video.streams.get_highest_resolution()
             new_filename = "Yeni_Video_Adi.mp4"  
 
             # static klasörünün var olduğundan emin olun
@@ -78,7 +78,7 @@ def main_page():
         try:
             url = request.form['url']
             youtube_video = YouTube(url,use_po_token=True)
-            video_stream = youtube_video.filter(progressive=True).streams.get_highest_resolution()
+            video_stream = youtube_video.streams.get_highest_resolution()
             new_filename = "Yeni_Video_Adi.mp4"
 
             if not os.path.exists("static"):
@@ -122,7 +122,7 @@ def play_video():
 
         # YouTube video indirme, use_po_token ile
         youtube_video = YouTube(url, use_po_token=True)
-        video_stream = youtube_video.filter(progressive=True).streams.get_highest_resolution()
+        video_stream = youtube_video.streams.get_highest_resolution()
         video_stream.download(static_folder, filename=filename)
 
         return render_template(
