@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+    <title>özgür yutup projesi</title>
+    <style>
+        .nav-btn {
+            background: #333;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            text-decoration: none;
+            display: inline-block;
+            margin: 10px 5px;
+        }
+        .nav-btn:hover {
+            background: #555;
+        }
+    </style>
+</head>
+<body>
+    <h1>özgür yutup projesi</h1>
+
+    <div>
+        <a href="{{ url_for('kesfet') }}" class="nav-btn">🔍 Keşfet</a>
+    </div>
+
+    {% if error %}
+        <p style="color: red;">{{ error }}</p>
+    {% endif %}
+
+    <form method="POST">
+        <label for="url">YouTube Video URL'si:</label><br>
+        <input type="url" name="url" id="url" placeholder="https://www.youtube.com/watch?v=..." required style="width: 250px; padding: 5px;"><br><br>
+        <button type="submit">Videoyu İndir</button>
+    </form>
+
+    {% if video_url %}
+        <h3>Video İndirildi!</h3>
+        <p><a href="{{ video_url }}" download>Videoyu İndir</a></p>
+    {% endif %}
+
+</body>
+</html>
