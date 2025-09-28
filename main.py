@@ -165,7 +165,7 @@ def kesfet(category=None):
         for q in queries:
             try:
                 s = Search(q, client='web')  # web client ile bot tespiti aşılır
-                results = list(s.results)
+                results = list(s.videos)
                 while len(results) < limit:
                     more = s.get_next_results()
                     if not more:
