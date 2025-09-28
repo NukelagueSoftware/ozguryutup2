@@ -221,14 +221,6 @@ def kesfet(category=None):
     )
 
 
-@app.route('/static/<path:filename>')
-def download_file(filename):
-    return send_from_directory('static', filename)
-
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8080, debug=True)
-
 
 @app.route('/static/<path:filename>')
 def download_file(filename):
