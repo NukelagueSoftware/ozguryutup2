@@ -27,7 +27,7 @@ def main_page():
     if request.method == 'POST':
         try:
             url = request.form['url']
-            youtube_video = YouTube(url)
+            youtube_video = YouTube(url, use_po_token=True)
             video_stream = youtube_video.streams.get_highest_resolution()
             new_filename = "Yeni_Video_Adi.mp4"  
 
